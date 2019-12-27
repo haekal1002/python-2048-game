@@ -1,0 +1,22 @@
+import tkinter as tk
+import time
+
+root = tk.Tk()
+root.title('2048')
+root.geometry('500x500') # width x height
+#root.resizable(0, 0)
+
+frame = tk.Frame(root, bg='#8A7965', bd=0)
+frame.place(relwidth=1, relheight=1)
+
+canvas = tk.Canvas(root, bg='#CDC1B3', bd=0)
+canvas.focus_set()
+canvas.place(relx=0.02, rely=0.02, relwidth=0.96, relheight=0.96)
+
+box1 = canvas.create_rectangle(10, 10, 112.5, 112.5, fill='#AD2F31', outline='#AD2F31')
+box2 = canvas.create_rectangle(200.5, 10, 112.5, 112.5, fill='black', outline='#AD2F31')
+
+
+
+
+root.mainloop()
