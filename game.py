@@ -22,6 +22,16 @@ FONT_COLOR  = {'2':'#776e65', '4':'#776e65', '8':'#f9f6f2', '16':'#f9f6f2',
               '512':'#f9f6f2', '1024':'#f9f6f2', '2048':'#f9f6f2', '4096':'#776e65',
               '8192':'#f9f6f2', '16384':'#776e65', '32768':'#776e65', '65536':'#f9f6f2'}
 
+def title_frame():
+    global label_score
+    top_frame = tkinter.Frame(root, bg='#FBF8EF', width=600, height=100)
+    label = tkinter.Label(top_frame, text='2048', font=('clear sans', 50, 'bold'), fg='#706E62', bg='#FBF8EF')
+    label_score = tkinter.Label(top_frame, text='0', font=('clear sans', 50, 'bold'), fg='#706E62', bg='#FBF8EF')
+    
+    top_frame.pack()
+    label.place(relx=0.05, rely=0.060)
+    label_score.place(relx=0.6, rely=0.060)
+
 def num_gen():
     return '2' if random.randint(1, 10) < 10 else '4'
 
@@ -81,6 +91,10 @@ def merge_cells(grid_object, opt):
                 if (list_numbers[i][j] == list_numbers[i][j-1]) and (list_numbers[i][j] != ''):
                     list_numbers[i][j] = str(int(list_numbers[i][j])*2)
                     list_numbers[i][j-1] = ''
+                    try:
+                        label_score['text'] = str(int(label_score['text'])+int(list_numbers[i][j]))
+                    except:
+                        pass
     elif opt == 'Left':
         for i in range(4):
             for j in range(4):
@@ -89,7 +103,11 @@ def merge_cells(grid_object, opt):
                 if (list_numbers[i][j] == list_numbers[i][j+1]) and (list_numbers[i][j] != ''):
                     list_numbers[i][j] = str(int(list_numbers[i][j])*2)
                     list_numbers[i][j+1] = ''
-                    
+                    try:
+                        label_score['text'] = str(int(label_score['text'])+int(list_numbers[i][j]))
+                    except:
+                        pass
+    
     global grid_cells
     grid_cells = fusion_matrix(grid_object, list_numbers)
 
@@ -150,6 +168,17 @@ def print_grid(lst):
         print(']')
     print()
 
+def check_status(grid_object):
+    temp = text_extract(grid_object)
+    for i in range(4):
+        try:
+            temp[i].index('')
+            return False
+        except:
+            continue
+        
+    return True
+    
 def update_grid(event):
     global grid_cells
     grid_before_state = text_extract(grid_cells)
@@ -158,26 +187,22 @@ def update_grid(event):
         print('<Right>')
         grid_sort(grid_cells, 'Right')
         merge_cells(grid_cells, 'Right')
-        
         grid_sort(grid_cells, 'Right')
     elif event.keysym == 'Left':
         print('<Left>')
         grid_sort(grid_cells, 'Left')
         merge_cells(grid_cells, 'Left')
-        
         grid_sort(grid_cells, 'Left')
     elif event.keysym == 'Down':
         print('<Down>')
         grid_sort(transpose(grid_cells), 'Right')
         merge_cells(grid_cells, 'Right')
-
         grid_sort(grid_cells, 'Right')
         grid_cells = transpose(grid_cells)
     elif event.keysym == 'Up':
         print('<Up>')
         grid_sort(transpose(grid_cells), 'Left')
         merge_cells(grid_cells, 'Left')
-
         grid_sort(grid_cells, 'Left')
         grid_cells = transpose(grid_cells)
         
@@ -196,13 +221,15 @@ def update_grid(event):
 # ---- main ----
 root = tkinter.Tk()
 root.title('2048')
+root.geometry('600x680')
 root.resizable(0, 0)
 
 background = tkinter.Frame(root, bg=BG_COLOR, width=BG_SIZE, height=BG_SIZE)
 background.focus_set()
-background.grid()
-    
+background.pack(side='bottom')
+
 game_start()
+title_frame()
 
 background.bind('<Right>', update_grid)
 background.bind('<Left>', update_grid)
