@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import tkinter
 import random
 from colorama import init, Fore, Style
