@@ -1,7 +1,6 @@
 import tkinter
 import random
 from colorama import init, Fore, Style
-init(convert=True)
 
 BG_SIZE  = 500
 BG_COLOR = '#BCAEA2'
@@ -24,7 +23,7 @@ FONT_COLOR  = {'2':'#776e65', '4':'#776e65', '8':'#f9f6f2', '16':'#f9f6f2',
 
 def title_frame():
     global label_score
-    top_frame = tkinter.Frame(root, bg='#FBF8EF', width=600, height=100)
+    top_frame = tkinter.Frame(root, bg='#FBF8EF', width=655, height=100)
     label = tkinter.Label(top_frame, text='2048', font=('clear sans', 50, 'bold'), fg='#706E62', bg='#FBF8EF')
     label_score = tkinter.Label(top_frame, text='0', font=('clear sans', 50, 'bold'), fg='#706E62', bg='#FBF8EF')
     
@@ -221,7 +220,7 @@ def update_grid(event):
 # ---- main ----
 root = tkinter.Tk()
 root.title('2048')
-root.geometry('600x680')
+root.geometry('655x670')
 root.resizable(0, 0)
 
 background = tkinter.Frame(root, bg=BG_COLOR, width=BG_SIZE, height=BG_SIZE)
