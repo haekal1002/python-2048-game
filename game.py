@@ -1,17 +1,26 @@
 import tkinter
 import random
+from colorama import init, Fore, Style
+init(convert=True)
 
 BG_SIZE  = 500
 BG_COLOR = '#BCAEA2'
 
 PADDING_SIZE = 10
-CELL_SIZE = (550-(5*PADDING_SIZE))/4
+CELL_SIZE = (BG_SIZE-(5*PADDING_SIZE))/4
 TEXT_SIZE_HEIGHT = 2
 TEXT_SIZE_WIDTH = 4
 
 CELL_COLOR_EMPTY = '#CDC1B3'
-FONT_COLOR = {'2':'#746C61', '4':'#746C61'}
-CELL_COLOR = {'2':'#EEE4DA', '4':'#ECE0C6'}
+CELL_COLOR = {'2':'#eee4da', '4':'#ede0c8', '8':'#f2b179', '16':'#f59563',
+              '32':'#f67c5f', '64':'#f65e3b', '128':'#edcf72', '256':'#edcc61',
+              '512':'#edc850', '1024':'#edc53f', '2048':'#edc22e', '4096':'#eee4da',
+              '8192': '#edc22e', '16384':'#f2b179', '32768':'#f59563', '65536':'#f67c5f'}
+              
+FONT_COLOR  = {'2':'#776e65', '4':'#776e65', '8':'#f9f6f2', '16':'#f9f6f2',
+              '32':'#f9f6f2', '64':'#f9f6f2', '128':'#f9f6f2', '256':'#f9f6f2',
+              '512':'#f9f6f2', '1024':'#f9f6f2', '2048':'#f9f6f2', '4096':'#776e65',
+              '8192':'#f9f6f2', '16384':'#776e65', '32768':'#776e65', '65536':'#f9f6f2'}
 
 def num_gen():
     return '2' if random.randint(1, 10) < 10 else '4'
@@ -33,8 +42,6 @@ def game_start():
         else:
             continue
         
-    print('({}, {}), ({}, {})'.format(row1, column1, row2, column2))
-
     for i in range(4): # row / y
         grid_row = []
         for j in range(4):# column / x
@@ -51,59 +58,140 @@ def game_start():
             
             cell.grid(row=i, column=j, padx=PADDING_SIZE, pady=PADDING_SIZE)
             number.grid()
-                      
-            grid_row.append([number, cell])
+            grid_row.append(number)
             
         grid_cells.append(grid_row)
 
-def grid_sort(lst, opt):
-    temp = [num[0]['text'] for num in lst]
-    zeroes = []
-    while True:
-        try:
-            temp.pop(temp.index('')) # omits all zero in the list
-            zeroes.append('')
-        except:
-            break
-        
-    if opt == 'Right':
-        temp = zeroes+temp
-    elif opt == 'Left':
-        temp = temp+zeroes
-        
-    # comparing the sorted list with the actual list that has the num and cell data
+def text_extract(lst):
+    temp = []
     for i in range(4):
-        if temp[i] != '':
-            NUM = temp[i]
-            lst[i][0].config(text=NUM, fg=FONT_COLOR[NUM], bg=CELL_COLOR[NUM])
-        else:
-            lst[i][0].config(text='', bg=CELL_COLOR_EMPTY)
-            
-    return lst
+        num_row = [lst[i][j]['text'] for j in range(4)]
+        temp.append(num_row)
+    return temp
+
+# merging two cells with the same value
+def merge_cells(grid_object, opt):
+    list_numbers = text_extract(grid_object)
     
+    if opt == 'Right':
+        for i in range(4):
+            for j in range(3, -1, -1):
+                if j == 0:
+                    continue
+                if (list_numbers[i][j] == list_numbers[i][j-1]) and (list_numbers[i][j] != ''):
+                    list_numbers[i][j] = str(int(list_numbers[i][j])*2)
+                    list_numbers[i][j-1] = ''
+    elif opt == 'Left':
+        for i in range(4):
+            for j in range(4):
+                if j == 3:
+                    continue
+                if (list_numbers[i][j] == list_numbers[i][j+1]) and (list_numbers[i][j] != ''):
+                    list_numbers[i][j] = str(int(list_numbers[i][j])*2)
+                    list_numbers[i][j+1] = ''
+                    
+    global grid_cells
+    grid_cells = fusion_matrix(grid_object, list_numbers)
+
+# comparing the grid object and a matrix with text in it
+# and changing the label value of grid object based on the matrix's texts
+def fusion_matrix(grid_object, matrix_text):
+    for i in range(4):
+        for j in range(4):
+            if matrix_text[i][j] != '':
+                NUM = matrix_text[i][j]
+                grid_object[i][j].config(text=NUM, fg=FONT_COLOR[NUM], bg=CELL_COLOR[NUM])
+            else:
+                grid_object[i][j].config(text='', bg=CELL_COLOR_EMPTY)
+
+    return grid_object
+    
+def grid_sort(lst, opt):
+    global grid_cells
+    zeroes = []
+    temp = text_extract(lst)
+    
+    for i in range(4):
+        zero_row = []
+        while True:
+            try:
+                temp[i].pop(temp[i].index('')) # omits all zero in the list
+                zero_row.append('')
+            except:
+                break
+        zeroes.append(zero_row)
+    for i in range(4):
+        if opt == 'Right':
+            temp[i] = zeroes[i]+temp[i]
+        elif opt == 'Left':
+            temp[i] = temp[i]+zeroes[i]
+
+    # comparing the sorted list with
+    # the actual list that has the num and cell data   
+    grid_cells = fusion_matrix(lst, temp)
+
+def transpose(lst):
+    new_matrix = []
+    for i in range(4):
+        temp = [lst[j][i] for j in range(4)]
+        new_matrix.append(temp)
+
+    return new_matrix
+
+def print_grid(lst):
+    grid = text_extract(grid_cells)
+    for i in range(4):
+        print('[ ', end='')
+        for j in range(4):
+            if grid[i][j]=='':
+                print('0, ', end='')
+            else:
+                print(Fore.GREEN + grid[i][j] + Style.RESET_ALL + ', ', end='')
+        print(']')
+    print()
+
 def update_grid(event):
     global grid_cells
+    grid_before_state = text_extract(grid_cells)
+    
     if event.keysym == 'Right':
-        lst1 = grid_sort(grid_cells[0], 'Right')
-        lst2 = grid_sort(grid_cells[1], 'Right')
-        lst3 = grid_sort(grid_cells[2], 'Right')
-        lst4 = grid_sort(grid_cells[3], 'Right')
-        grid_cells = [lst1, lst2, lst3, lst4]
+        print('<Right>')
+        grid_sort(grid_cells, 'Right')
+        merge_cells(grid_cells, 'Right')
         
+        grid_sort(grid_cells, 'Right')
     elif event.keysym == 'Left':
-        lst1 = grid_sort(grid_cells[0], 'Left')
-        lst2 = grid_sort(grid_cells[1], 'Left')
-        lst3 = grid_sort(grid_cells[2], 'Left')
-        lst4 = grid_sort(grid_cells[3], 'Left')
-        grid_cells = [lst1, lst2, lst3, lst4]
+        print('<Left>')
+        grid_sort(grid_cells, 'Left')
+        merge_cells(grid_cells, 'Left')
+        
+        grid_sort(grid_cells, 'Left')
+    elif event.keysym == 'Down':
+        print('<Down>')
+        grid_sort(transpose(grid_cells), 'Right')
+        merge_cells(grid_cells, 'Right')
 
+        grid_sort(grid_cells, 'Right')
+        grid_cells = transpose(grid_cells)
+    elif event.keysym == 'Up':
+        print('<Up>')
+        grid_sort(transpose(grid_cells), 'Left')
+        merge_cells(grid_cells, 'Left')
+
+        grid_sort(grid_cells, 'Left')
+        grid_cells = transpose(grid_cells)
+        
     # generate random cell
-    row, column = random_pos()
-    if grid_cells[row][column][0]['text'] == '':
-        NUM = num_gen()
-        grid_cells[row][column][0].config(text=NUM, fg=FONT_COLOR[NUM], bg=CELL_COLOR[NUM])
-        print('Generate a \'{}\' at ({}, {})'.format(NUM, row, column))
-                
+    # only generate new cell if the pre-existing cell structure isn't the same as before
+    if grid_before_state != text_extract(grid_cells):
+        while True:
+            row, column = random_pos()
+            if grid_cells[row][column]['text'] == '':
+                NUM = num_gen()
+                grid_cells[row][column].config(text=NUM, fg=FONT_COLOR[NUM], bg=CELL_COLOR[NUM])
+                break
+
+    print_grid(grid_cells)
     
 # ---- main ----
 root = tkinter.Tk()
@@ -118,7 +206,8 @@ game_start()
 
 background.bind('<Right>', update_grid)
 background.bind('<Left>', update_grid)
-#print(type(grid_cells[0]['text']))
+background.bind('<Down>', update_grid)
+background.bind('<Up>', update_grid)
 
 root.mainloop()
     
