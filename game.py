@@ -154,17 +154,6 @@ def transpose(lst):
         new_matrix.append(temp)
 
     return new_matrix
-
-def check_status(grid_object):
-    temp = text_extract(grid_object)
-    for i in range(4):
-        try:
-            temp[i].index('')
-            return False
-        except:
-            continue
-        
-    return True
     
 def update_grid(event):
     global grid_cells
