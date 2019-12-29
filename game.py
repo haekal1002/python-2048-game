@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import tkinter
 import random
-from colorama import init, Fore, Style
 
 BG_SIZE  = 500
 BG_COLOR = '#BCAEA2'
@@ -156,18 +155,6 @@ def transpose(lst):
 
     return new_matrix
 
-def print_grid(lst):
-    grid = text_extract(grid_cells)
-    for i in range(4):
-        print('[ ', end='')
-        for j in range(4):
-            if grid[i][j]=='':
-                print('0, ', end='')
-            else:
-                print(Fore.GREEN + grid[i][j] + Style.RESET_ALL + ', ', end='')
-        print(']')
-    print()
-
 def check_status(grid_object):
     temp = text_extract(grid_object)
     for i in range(4):
@@ -184,23 +171,19 @@ def update_grid(event):
     grid_before_state = text_extract(grid_cells)
     
     if event.keysym == 'Right':
-        print('<Right>')
         grid_sort(grid_cells, 'Right')
         merge_cells(grid_cells, 'Right')
         grid_sort(grid_cells, 'Right')
     elif event.keysym == 'Left':
-        print('<Left>')
         grid_sort(grid_cells, 'Left')
         merge_cells(grid_cells, 'Left')
         grid_sort(grid_cells, 'Left')
     elif event.keysym == 'Down':
-        print('<Down>')
         grid_sort(transpose(grid_cells), 'Right')
         merge_cells(grid_cells, 'Right')
         grid_sort(grid_cells, 'Right')
         grid_cells = transpose(grid_cells)
     elif event.keysym == 'Up':
-        print('<Up>')
         grid_sort(transpose(grid_cells), 'Left')
         merge_cells(grid_cells, 'Left')
         grid_sort(grid_cells, 'Left')
@@ -215,8 +198,6 @@ def update_grid(event):
                 NUM = num_gen()
                 grid_cells[row][column].config(text=NUM, fg=FONT_COLOR[NUM], bg=CELL_COLOR[NUM])
                 break
-
-    print_grid(grid_cells)
     
 # ---- main ----
 root = tkinter.Tk()
@@ -237,8 +218,3 @@ background.bind('<Down>', update_grid)
 background.bind('<Up>', update_grid)
 
 root.mainloop()
-    
-
-
-
-
